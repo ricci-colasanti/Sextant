@@ -10,7 +10,7 @@
 
 Sextant is a lightweight, simple microsimulation engine designed to add a **temporal component** to synthetic populations. It applies basic, rule-based changes to population attributes over time—aging individuals, applying mortality, and simulating births.
 
-**Sextant is a simple, limited version of the full Hermes microsimulation engine.** It provides the core functionality needed to evolve static synthetic populations forward in time, without the complexity of a full-scale microsimulation system.
+**Sextant is a simple, limited version of the full Hermes microsimulation engine.** Sextant provides core microsimulation functionality—aging, mortality, and fertility—in a lightweight, focused package. For more advanced features, see the full Hermes engine.
 
 ---
 
