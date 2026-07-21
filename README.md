@@ -3,8 +3,10 @@
   <p><em>Sextant — Simple Microsimulation Engine</em></p>
 </div>
 
-# Sextant
+# SEXTANT
 ## Simple Microsimulation Engine
+
+**S.E.X.T.A.N.T. = Synthetic Evolution eXtension for Temporal Attribute Navigation in Time**
 
 Sextant is a lightweight, simple microsimulation engine designed to add a **temporal component** to synthetic populations. It applies basic, rule-based changes to population attributes over time—aging individuals, applying mortality, and simulating births.
 
