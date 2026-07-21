@@ -1,0 +1,108 @@
+# config_aging_mortality_fertility.yaml
+# Complete demographic model with aging, mortality, and fertility
+
+simulation:
+  iterations: 10
+  population_file: "population.csv"
+  output_file: "population_complete.csv"
+  random_seed: 42
+  verbose: true
+  id_column: "person_id"
+  streaming_mode: false   # Use bulk mode (simple for small populations)
+
+models:
+  # Model 1: Age increment (runs first)
+  - name: "age_increment"
+    type: "lua_model"
+    priority: 1
+    enabled: true
+    description: "Increment everyone's age by 1 year"
+    parameters:
+      script: |
+        function transition(population, params)
+          for _, person in ipairs(population) do
+            if person.alive == true then
+              person.age = person.age + 1
+            end
+          end
+          return population
+        end
+
+  # Model 2: Mortality (runs second)
+  - name: "mortality"
+    type: "lua_model"
+    priority: 2
+    enabled: true
+    description: "Age-specific mortality: 0.1% for under 30, 5% for 30+"
+    parameters:
+      script: |
+        function transition(population, params)
+          for _, person in ipairs(population) do
+            if person.alive == true then
+              local age = person.age
+              local prob = 0
+              
+              if age < 30 then
+                prob = 0.001
+              else
+                prob = 0.05
+              end
+              
+              if math.random() < prob then
+                person.alive = false
+              end
+            end
+          end
+          return population
+        end
+
+  # Model 3: Fertility (runs third)
+  - name: "fertility"
+    type: "lua_model"
+    priority: 3
+    enabled: true
+    description: "Fertility: 5% chance for women aged 15-49 to give birth"
+    parameters:
+      fertility_rate: 0.05
+      script: |
+        function transition(population, params)
+          local fertility_rate = params.fertility_rate
+          local newborns = {}
+          
+          local max_id = 0
+          for _, person in ipairs(population) do
+            if person.person_id ~= nil and person.person_id > max_id then
+              max_id = person.person_id
+            end
+          end
+          
+          for _, person in ipairs(population) do
+            if person.alive == true and person.sex == "F" then
+              local age = person.age
+              if age >= 15 and age < 50 then
+                if math.random() < fertility_rate then
+                  max_id = max_id + 1
+                  local baby = {
+                    person_id = max_id,
+                    age = 0,
+                    sex = math.random() < 0.5 and "F" or "M",
+                    area_id = person.area_id,
+                    alive = true,
+                    previous_area = 0,
+                    partner_id = 0,
+                    mother_id = person.person_id,
+                    father_id = 0,
+                    parity = 0
+                  }
+                  table.insert(newborns, baby)
+                end
+              end
+            end
+          end
+          
+          for _, baby in ipairs(newborns) do
+            table.insert(population, baby)
+          end
+          
+          return population
+        end
